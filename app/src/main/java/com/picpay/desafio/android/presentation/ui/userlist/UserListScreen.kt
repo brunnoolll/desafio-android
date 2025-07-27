@@ -16,11 +16,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.picpay.desafio.android.presentation.ui.userlist.UserListViewModel
 
 @Composable
 fun UserListRoute(
@@ -69,12 +66,10 @@ fun UserListScreen(
                 }
             }
 
-            // 2. Mostre o loading APENAS se a lista estiver vazia.
             if (state.isLoading && state.users.isEmpty()) {
                 CircularProgressIndicator(modifier = Modifier.testTag("loading_indicator"))
             }
 
-            // 3. Mostre o erro APENAS se a lista estiver vazia.
             if (state.error != null && state.users.isEmpty()) {
                 Text(text = state.error)
             }

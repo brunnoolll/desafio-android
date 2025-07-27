@@ -64,23 +64,18 @@ class UserListScreenTest {
 
     @Test
     fun whenStateIsLoading_displaysLoadingIndicator() {
-        // Arrange: Crie um estado onde 'isLoading' é true e a lista está vazia.
         val loadingState = UserListState(isLoading = true, users = emptyList())
 
-        // Act: Renderize a tela com o estado de loading.
         composeTestRule.setContent {
             DesafioAndroidTheme {
                 UserListScreen(state = loadingState)
             }
         }
 
-        // Assert: Verifique se os componentes corretos estão (ou não) na tela.
         composeTestRule.onNodeWithText("Contatos").assertIsDisplayed()
 
-        // Verifica se o indicador de loading está sendo exibido
         composeTestRule.onNodeWithTag("loading_indicator").assertIsDisplayed()
 
-        // Verifica se a lista de usuários NÃO existe
         composeTestRule.onNodeWithTag("user_list").assertDoesNotExist()
     }
 

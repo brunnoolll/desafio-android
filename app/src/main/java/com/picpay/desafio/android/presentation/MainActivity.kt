@@ -10,7 +10,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.picpay.desafio.android.presentation.theme.DesafioAndroidTheme
 import com.picpay.desafio.android.presentation.ui.userlist.UserListRoute
-import com.picpay.desafio.android.presentation.ui.userlist.UserListScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

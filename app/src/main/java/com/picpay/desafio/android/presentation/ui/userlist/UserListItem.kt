@@ -54,20 +54,3 @@ fun UserListItem(
         }
     }
 }
-
-//// Manter o preview é uma boa prática para testar isoladamente
-//@Preview(showBackground = true)
-//@Composable
-//fun UserListItemPreview() {
-//    DesafioAndroidTheme {
-//        Surface {
-//            val sampleUser = User(
-//                id = "1",
-//                name = "Bruno Rodrigues",
-//                username = "bruno.rodrigues",
-//                imageUrl = ""
-//            )
-//            UserListItem(user = sampleUser, modifier = Modifier.fillMaxWidth())
-//        }
-//    }
-//}
