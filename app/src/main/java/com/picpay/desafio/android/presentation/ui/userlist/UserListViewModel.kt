@@ -37,25 +37,34 @@ class UserListViewModel @Inject constructor(
                         it.copy(isLoading = true)
                     }
                 }
+
                 is Resource.Success -> {
-                    logger.d(TAG, "ViewModel recebeu: Resource.Success com ${resource.data.size} usuários")
+                    logger.d(
+                        TAG,
+                        "ViewModel recebeu: Resource.Success com ${resource.data.size} usuários"
+                    )
                     _state.update {
                         it.copy(
                             isLoading = false,
                             users = resource.data,
-                            error = null
+                            isError = false
                         )
                     }
 
                 }
+
                 is Resource.Error -> {
-                    logger.d(TAG, "ViewModel recebeu: Resource.Error com msg: ${resource.error.message}")
+                    logger.d(
+                        TAG,
+                        "ViewModel recebeu: Resource.Error com msg: ${resource.error.message}"
+                    )
                     _state.update {
                         it.copy(
                             isLoading = false,
-                            error = resource.error.message
+                            isError = true
                         )
-                    }            }
+                    }
+                }
             }
         }.launchIn(viewModelScope)
     }

@@ -78,7 +78,7 @@ fun UserListScreen(
                 CircularProgressIndicator(modifier = Modifier.testTag("loading_indicator"))
             }
 
-            if (state.error != null && state.users.isEmpty()) {
+            if (state.isError && state.users.isEmpty()) {
                 Text(text = stringResource(R.string.error))
             }
         }

@@ -52,7 +52,7 @@ class UserListViewModelTest {
 
             assertFalse("O loading deveria ter terminado", finalState.isLoading)
             assertEquals("A lista de usuários deveria ser a lista falsa", fakeUserList, finalState.users)
-            assertNull("Não deveria haver erro", finalState.error)
+            assertNull("Não deveria haver erro", finalState.isError)
 
             cancelAndIgnoreRemainingEvents()
         }
@@ -60,11 +60,9 @@ class UserListViewModelTest {
 
     @Test
     fun `when use case returns error, state should be updated with error message`() = runTest {
-        val errorMessage = "Falha de rede"
-        val fakeError = ApiException.NetworkError(errorMessage)
 
+        val fakeError = ApiException.NetworkError()
         val errorFlow = flowOf(Resource.Error(fakeError))
-
         every { getUsersUseCase() } returns errorFlow
 
         viewModel = UserListViewModel(getUsersUseCase, fakeLogger)
@@ -74,7 +72,7 @@ class UserListViewModelTest {
 
             assertFalse("O loading deveria ser falso após o erro", errorState.isLoading)
             assertTrue("A lista de usuários deveria estar vazia em caso de erro inicial", errorState.users.isEmpty())
-            assertEquals("A mensagem de erro deve ser a que esperamos", errorMessage, errorState.error)
+            assertTrue("A flag de erro deveria ser verdadeira", errorState.isError)
 
             cancelAndIgnoreRemainingEvents()
         }

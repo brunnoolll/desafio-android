@@ -41,11 +41,10 @@ class UserListScreenTest {
 
     @Test
     fun whenStateIsError_displaysErrorMessage() {
-        val errorMessage = "Ocorreu um erro. Tente novamente."
         val errorState = UserListState(
             isLoading = false,
             users = emptyList(),
-            error = errorMessage
+            isError = true
         )
 
         composeTestRule.setContent {
@@ -56,7 +55,8 @@ class UserListScreenTest {
 
         composeTestRule.onNodeWithText("Contatos").assertIsDisplayed()
 
-        composeTestRule.onNodeWithText(errorMessage).assertIsDisplayed()
+        val expectedErrorMessage = "Ocorreu um erro. Tente novamente."
+        composeTestRule.onNodeWithText(expectedErrorMessage).assertIsDisplayed()
 
         composeTestRule.onNodeWithTag("loading_indicator").assertDoesNotExist()
         composeTestRule.onNodeWithTag("user_list").assertDoesNotExist()
