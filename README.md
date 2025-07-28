@@ -2,21 +2,81 @@
 
 <img src="https://github.com/mobilepicpay/desafio-android/blob/master/desafio-picpay.gif" width="300"/>
 
-Um dos desafios de qualquer time de desenvolvimento é lidar com código legado e no PicPay isso não é diferente. Um dos objetivos de trazer os melhores desenvolvedores do Brasil é atacar o problema. Para isso, essa etapa do processo consiste numa proposta de solução para o desafio abaixo e você pode escolher a melhor forma de resolvê-lo, de acordo com sua comodidade e disponibilidade de tempo:
-- Resolver o desafio previamente, e explicar sua abordagem no momento da entrevista.
-- Discutir as possibilidades de solução durante a entrevista, fazendo um pair programming (bate-papo) interativo com os nossos devs.
 
-Com o passar do tempo identificamos alguns problemas que impedem esse aplicativo de escalar e acarretam problemas de experiência do usuário. A partir disso elaboramos a seguinte lista de requisitos que devem ser cumpridos ao melhorar nossa arquitetura:
+# Wiki do Projeto
+Este documento serve como um guia técnico completo para a arquitetura, tecnologias, padrões e estratégica de testes utilizados na construção do desafio.
 
-- Em mudanças de configuração o aplicativo perde o estado da tela. Gostaríamos que o mesmo fosse mantido.
-- Nossos relatórios de crash têm mostrado alguns crashes relacionados a campos que não deveriam ser nulos sendo nulos e gerenciamento de lifecycle. Gostaríamos que fossem corrigidos.
-- Gostaríamos de cachear os dados retornados pelo servidor.
-- Haverá mudanças na lógica de negócios e gostaríamos que a arquitetura reaja bem a isso.
-- Haverá mudanças na lógica de apresentação. Gostaríamos que a arquitetura reaja bem a isso.
-- Com um grande número de desenvolvedores e uma quantidade grande de mudanças ocorrendo testes automatizados são essenciais.
-  - Gostaríamos de ter testes unitários testando nossa lógica de apresentação, negócios e dados independentemente, visto que tanto a escrita quanto execução dos mesmos são rápidas.
-  - Por outro lado, testes unitários rodam em um ambiente de execução diferenciado e são menos fiéis ao dia-a-dia de nossos usuários, então testes instrumentados também são importantes.
+## 1. Visão Geral e Arquitetura
 
-Boa sorte! =)
+O projeto foi estruturado para ser robusto, testável e escalável, utilizando uma combinação da arquitetura MVVM (Model-View-ViewModel) com os princípios da Clean Architecture.
 
-Ps.: Fique à vontade para editar o projeto inteiro, organização de pastas e módulos, bem como as dependências utilizadas
+As responsabilidades são divididas em 3 camadas principais:
+
+
+- **Presentation (Apresentação):** Responsável pela UI e interação com o usuário. Contém a `Activity`, os `Composables` (Views), e o `ViewModel`. O `ViewModel` não conhece a UI, apenas expõe um estado (`StateFlow`) que a UI observa.
+- **Domain (Domínio):** O coração da aplicação. Contém a lógica de negócio pura, sem nenhuma dependência de frameworks. Aqui ficam os `Models` de negócio (ex: `User`), as interfaces dos `Repository` e os `UseCases` (interactors).
+- **Data (Dados):** Responsável por buscar e salvar os dados, seja de uma fonte remota (API) ou local (banco de dados). Implementa as interfaces do repositório definidas na camada de `domain`.
+
+O fluxo de dados é unidirecional, garantindo previsibilidade e facilidade de depuração:
+`UI ➔ ViewModel ➔ UseCase ➔ Repository ➔ Fontes de Dados (API/Room)`
+
+## 2. Stack de Tecnologia (Bibliotecas)
+
+| Finalidade | Biblioteca(s) |
+| :--- | :--- |
+| **UI (Interface Gráfica)** | Jetpack Compose, Material 3 |
+| **Injeção de Dependência** | Hilt |
+| **Comunicação de Rede** | Retrofit, OkHttp (com Logging Interceptor) |
+| **Parsing de JSON** | Moshi (com Codegen) |
+| **Banco de Dados (Cache)** | Room |
+| **Programação Assíncrona**| Kotlin Coroutines & Flow |
+| **Gerenciamento de Estado** | StateFlow |
+| **Carregamento de Imagens** | Coil |
+| **Testes Unitários** | JUnit 4, MockK, Turbine, Truth |
+| **Testes Instrumentados** | AndroidX Test (JUnit4), Compose Test Rule, Hilt Testing |
+
+## 3. Estrutura de Pacotes
+
+A organização das pastas foi feita para espelhar as camadas da arquitetura:
+
+![img_2.png](img_2.png)
+
+## 4. Padrões e Conceitos Chave
+
+- **Single Source of Truth (Fonte Única da Verdade):** A UI sempre lê os dados do banco de dados (Room). O `UserRepositoryImpl` é o orquestrador que busca dados da API e os usa para manter o banco de dados local sempre atualizado. Isso garante que o app tenha um bom funcionamento offline e uma UI consistente.
+- **Wrapper `Resource`:** Uma classe `sealed` (`Loading`, `Success`, `Error`) é usada para encapsular o estado dos dados que fluem do repositório para o ViewModel, tornando o tratamento de cada estado explícito e seguro.
+- **UI "Stateless" e "Stateful":** A UI foi dividida em dois Composables:
+  - `UserListScreen`: Um componente "burro" (stateless) que apenas recebe um `UserListState` e o renderiza. É fácil de testar e visualizar.
+  - `UserListRoute`: Um componente "inteligente" (stateful) que se conecta ao `ViewModel`, coleta o estado e o passa para a `UserListScreen`.
+
+## 5. Estratégia de Testes
+
+A estratégia de testes visa garantir a qualidade em cada camada, usando a ferramenta certa para cada trabalho.
+
+### 5.1. Testes Unitários (JVM)
+
+Testes de lógica pura que rodam rapidamente na JVM, sem a necessidade de um emulador.
+
+**Classes Testadas:**
+- **`GetUsersUseCase`**: Valida que a lógica de negócio principal (chamar o repositório) está correta.
+- **`UserListViewModel`**: Valida a lógica de gerenciamento de estado, garantindo que o ViewModel traduz os `Resource`s para o `UserListState` correto.
+- **`UserRepositoryImpl`**: Valida a lógica de orquestração de dados (API vs. Cache) usando mocks.
+
+### 5.2. Testes Instrumentados (Ambiente Android)
+
+Testes que rodam em um emulador ou dispositivo Android real para validar a integração com o framework.
+
+**Classes Testadas:**
+- **`UserDao`**: Valida as queries SQL do Room usando um banco de dados em memória.
+- **`AppDatabase`**: Valida a lógica de criação do banco e o padrão singleton.
+- **`UserListScreen`**: Valida a lógica visual, renderizando o Composable de forma isolada e verificando se ele exibe os estados de sucesso, erro e loading corretamente.
+- **`MainActivity`**: Atua como um "smoke test", garantindo que o app abre e exibe a tela inicial sem quebrar.
+
+### 5.3. O Que NÃO Testamos (e o porquê)
+
+Não escrevemos testes para classes que são puramente de configuração e não contêm lógica de negócio customizada.
+
+- **Módulos do Hilt:** São "manuais de instrução" para o Hilt. A prova de que funcionam é o app compilar e rodar.
+- **`AndroidLogger` e `Application`:** São classes "boilerplate" sem lógica própria. Sua funcionalidade é validada pela execução do app e dos testes instrumentados.
+- **Classes de Modelo (`data class`):** Apenas guardam dados e não possuem lógica a ser testada.
+
