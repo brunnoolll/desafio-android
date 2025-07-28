@@ -13,14 +13,6 @@ data class UserDto(
     val imageUrl: String,
     val username: String
 )
-    fun UserDto.toUser(): User {
-        return User(
-            id = this.id.toInt(),
-            name = this.name,
-            username = this.username,
-            img = this.imageUrl
-        )
-    }
 
 fun UserDto.toEntity(): UserEntity {
     return UserEntity(
