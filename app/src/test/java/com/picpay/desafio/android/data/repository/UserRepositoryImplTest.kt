@@ -121,19 +121,15 @@ class UserRepositoryImplTest {
 
     @Test
     fun `getUsers when api returns other error and cache is empty should emit UnknownError`() = runTest {
-        // Arrange
-        // 1. Simule uma resposta HTTP com um código não mapeado (ex: 404).
         val httpException = HttpException(Response.error<List<UserDto>>(404, "Not Found".toResponseBody()))
         coEvery { apiService.getUsers() } throws httpException
         coEvery { userDao.getAllUsers() } returns flowOf(emptyList())
 
-        // Act & Assert
         repository.getUsers().test {
             assertThat(awaitItem()).isInstanceOf(Resource.Loading::class.java)
 
             val errorResult = awaitItem()
             assertThat(errorResult).isInstanceOf(Resource.Error::class.java)
-            // 2. Verifique se o erro emitido é do tipo UnknownError.
             assertThat((errorResult as Resource.Error).error).isInstanceOf(ApiException.UnknownError::class.java)
 
             awaitComplete()
@@ -142,19 +138,15 @@ class UserRepositoryImplTest {
 
     @Test
     fun `getUsers when api returns 500 and cache is empty should emit ServerError`() = runTest {
-        // Arrange
-        // 1. Simule uma resposta HTTP com código 500 (Erro de Servidor).
         val httpException = HttpException(Response.error<List<UserDto>>(500, "Server Error".toResponseBody()))
         coEvery { apiService.getUsers() } throws httpException
         coEvery { userDao.getAllUsers() } returns flowOf(emptyList())
 
-        // Act & Assert
         repository.getUsers().test {
             assertThat(awaitItem()).isInstanceOf(Resource.Loading::class.java)
 
             val errorResult = awaitItem()
             assertThat(errorResult).isInstanceOf(Resource.Error::class.java)
-            // 2. Verifique se o erro emitido é do tipo ServerError.
             assertThat((errorResult as Resource.Error).error).isInstanceOf(ApiException.ServerError::class.java)
 
             awaitComplete()
@@ -163,19 +155,15 @@ class UserRepositoryImplTest {
 
     @Test
     fun `getUsers when api returns 401 and cache is empty should emit UnauthorizedError`() = runTest {
-        // Arrange
-        // 1. Simule uma resposta HTTP com código 401 (Não Autorizado).
         val httpException = HttpException(Response.error<List<UserDto>>(401, "Unauthorized".toResponseBody()))
         coEvery { apiService.getUsers() } throws httpException
         coEvery { userDao.getAllUsers() } returns flowOf(emptyList())
 
-        // Act & Assert
         repository.getUsers().test {
             assertThat(awaitItem()).isInstanceOf(Resource.Loading::class.java)
 
             val errorResult = awaitItem()
             assertThat(errorResult).isInstanceOf(Resource.Error::class.java)
-            // 2. Verifique se o erro emitido é do tipo UnauthorizedError.
             assertThat((errorResult as Resource.Error).error).isInstanceOf(ApiException.UnauthorizedError::class.java)
 
             awaitComplete()
