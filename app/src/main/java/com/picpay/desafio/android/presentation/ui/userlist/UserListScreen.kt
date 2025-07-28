@@ -21,7 +21,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.picpay.desafio.android.R
 
 @Composable
 fun UserListRoute(
@@ -42,7 +44,7 @@ fun UserListScreen(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text(text = "Contatos", style = MaterialTheme.typography.headlineMedium) },
+                title = { Text(text = stringResource(R.string.title), style = MaterialTheme.typography.headlineMedium) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Black
                 )
@@ -77,7 +79,7 @@ fun UserListScreen(
             }
 
             if (state.error != null && state.users.isEmpty()) {
-                Text(text = state.error)
+                Text(text = stringResource(R.string.error))
             }
         }
     }

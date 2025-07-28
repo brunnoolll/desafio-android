@@ -41,7 +41,7 @@ class UserListScreenTest {
 
     @Test
     fun whenStateIsError_displaysErrorMessage() {
-        val errorMessage = "Falha na conexão com o servidor"
+        val errorMessage = "Ocorreu um erro. Tente novamente."
         val errorState = UserListState(
             isLoading = false,
             users = emptyList(),
