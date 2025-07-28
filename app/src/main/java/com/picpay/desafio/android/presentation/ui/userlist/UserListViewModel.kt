@@ -38,11 +38,11 @@ class UserListViewModel @Inject constructor(
                     }
                 }
                 is Resource.Success -> {
-                    logger.d(TAG, "ViewModel recebeu: Resource.Success com ${resource.data.size ?: 0} usuários")
+                    logger.d(TAG, "ViewModel recebeu: Resource.Success com ${resource.data.size} usuários")
                     _state.update {
                         it.copy(
                             isLoading = false,
-                            users = resource.data ?: emptyList(),
+                            users = resource.data,
                             error = null
                         )
                     }
