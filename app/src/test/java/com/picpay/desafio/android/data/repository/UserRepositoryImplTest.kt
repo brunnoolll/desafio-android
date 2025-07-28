@@ -73,6 +73,20 @@ class UserRepositoryImplTest {
     }
 
     @Test
+    fun `getUsers should always emit loading first`() = runTest {
+        coEvery { apiService.getUsers() } throws IOException("Erro de rede simulado")
+        coEvery { userDao.getAllUsers() } returns flowOf(emptyList())
+
+        repository.getUsers().test {
+            val firstEmission = awaitItem()
+
+            assertThat(firstEmission).isInstanceOf(Resource.Loading::class.java)
+
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
     fun `getUsers when api fails and cache is not empty should emit success with cached data`() = runTest {
 
         val networkError = IOException("Falha na rede")
