@@ -1,4 +1,4 @@
-package com.picpay.desafio.android.data.presentation.ui.userlist
+package com.picpay.desafio.android.presentation.ui.userlist
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
