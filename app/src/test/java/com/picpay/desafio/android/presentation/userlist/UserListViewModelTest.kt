@@ -17,7 +17,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
-import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
 
@@ -52,7 +51,7 @@ class UserListViewModelTest {
 
             assertFalse("O loading deveria ter terminado", finalState.isLoading)
             assertEquals("A lista de usuários deveria ser a lista falsa", fakeUserList, finalState.users)
-            assertNull("Não deveria haver erro", finalState.isError)
+            assertFalse("Não deveria haver erro (isError deveria ser falso)", finalState.isError)
 
             cancelAndIgnoreRemainingEvents()
         }
