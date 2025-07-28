@@ -58,6 +58,25 @@ class UserListViewModelTest {
     }
 
     @Test
+    fun `when use case emits loading, state should be updated to loading`() = runTest {
+
+        val loadingFlow = flowOf(Resource.Loading)
+        every { getUsersUseCase() } returns loadingFlow
+
+        viewModel = UserListViewModel(getUsersUseCase, fakeLogger)
+
+        viewModel.state.test {
+            val finalLoadingState = awaitItem()
+
+            assertTrue("isLoading deveria ser true", finalLoadingState.isLoading)
+            assertTrue("A lista de usuários deveria estar vazia", finalLoadingState.users.isEmpty())
+            assertFalse("isError deveria ser falso", finalLoadingState.isError)
+
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
     fun `when use case returns error, state should be updated with error message`() = runTest {
 
         val fakeError = ApiException.NetworkError()
