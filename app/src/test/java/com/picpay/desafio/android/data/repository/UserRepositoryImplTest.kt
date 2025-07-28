@@ -9,6 +9,7 @@ import com.picpay.desafio.android.data.remote.ApiService
 import com.picpay.desafio.android.data.remote.dto.UserDto
 import com.picpay.desafio.android.domain.common.Logger
 import com.picpay.desafio.android.domain.common.Resource
+import com.picpay.desafio.android.domain.exception.ApiException
 import com.picpay.desafio.android.presentation.userlist.TestLogger
 import com.picpay.desafio.android.util.MainCoroutineRule
 import io.mockk.coEvery
@@ -17,9 +18,12 @@ import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import retrofit2.HttpException
+import retrofit2.Response
 import java.io.IOException
 
 @ExperimentalCoroutinesApi
@@ -113,5 +117,68 @@ class UserRepositoryImplTest {
 
         coVerify(exactly = 0) { userDao.deleteAll() }
         coVerify(exactly = 0) { userDao.insertAll(any()) }
+    }
+
+    @Test
+    fun `getUsers when api returns other error and cache is empty should emit UnknownError`() = runTest {
+        // Arrange
+        // 1. Simule uma resposta HTTP com um código não mapeado (ex: 404).
+        val httpException = HttpException(Response.error<List<UserDto>>(404, "Not Found".toResponseBody()))
+        coEvery { apiService.getUsers() } throws httpException
+        coEvery { userDao.getAllUsers() } returns flowOf(emptyList())
+
+        // Act & Assert
+        repository.getUsers().test {
+            assertThat(awaitItem()).isInstanceOf(Resource.Loading::class.java)
+
+            val errorResult = awaitItem()
+            assertThat(errorResult).isInstanceOf(Resource.Error::class.java)
+            // 2. Verifique se o erro emitido é do tipo UnknownError.
+            assertThat((errorResult as Resource.Error).error).isInstanceOf(ApiException.UnknownError::class.java)
+
+            awaitComplete()
+        }
+    }
+
+    @Test
+    fun `getUsers when api returns 500 and cache is empty should emit ServerError`() = runTest {
+        // Arrange
+        // 1. Simule uma resposta HTTP com código 500 (Erro de Servidor).
+        val httpException = HttpException(Response.error<List<UserDto>>(500, "Server Error".toResponseBody()))
+        coEvery { apiService.getUsers() } throws httpException
+        coEvery { userDao.getAllUsers() } returns flowOf(emptyList())
+
+        // Act & Assert
+        repository.getUsers().test {
+            assertThat(awaitItem()).isInstanceOf(Resource.Loading::class.java)
+
+            val errorResult = awaitItem()
+            assertThat(errorResult).isInstanceOf(Resource.Error::class.java)
+            // 2. Verifique se o erro emitido é do tipo ServerError.
+            assertThat((errorResult as Resource.Error).error).isInstanceOf(ApiException.ServerError::class.java)
+
+            awaitComplete()
+        }
+    }
+
+    @Test
+    fun `getUsers when api returns 401 and cache is empty should emit UnauthorizedError`() = runTest {
+        // Arrange
+        // 1. Simule uma resposta HTTP com código 401 (Não Autorizado).
+        val httpException = HttpException(Response.error<List<UserDto>>(401, "Unauthorized".toResponseBody()))
+        coEvery { apiService.getUsers() } throws httpException
+        coEvery { userDao.getAllUsers() } returns flowOf(emptyList())
+
+        // Act & Assert
+        repository.getUsers().test {
+            assertThat(awaitItem()).isInstanceOf(Resource.Loading::class.java)
+
+            val errorResult = awaitItem()
+            assertThat(errorResult).isInstanceOf(Resource.Error::class.java)
+            // 2. Verifique se o erro emitido é do tipo UnauthorizedError.
+            assertThat((errorResult as Resource.Error).error).isInstanceOf(ApiException.UnauthorizedError::class.java)
+
+            awaitComplete()
+        }
     }
 }
