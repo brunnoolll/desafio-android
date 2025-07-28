@@ -20,8 +20,6 @@ class UserListViewModel @Inject constructor(
     private val logger: Logger
 ) : ViewModel() {
 
-    private val TAG = UserListViewModel::class.simpleName ?: "UserListViewModel"
-
     private val _state = MutableStateFlow(UserListState())
     val state: StateFlow<UserListState> = _state.asStateFlow()
 
@@ -60,5 +58,9 @@ class UserListViewModel @Inject constructor(
                     }            }
             }
         }.launchIn(viewModelScope)
+    }
+
+    companion object {
+        private const val TAG = "UserListViewModel"
     }
 }
