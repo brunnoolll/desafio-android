@@ -44,7 +44,7 @@ fun UserListScreen(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(R.string.title), style = MaterialTheme.typography.headlineMedium) },
+                title = { Text(color = Color.White, text = stringResource(R.string.title), style = MaterialTheme.typography.headlineMedium) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Black
                 )
