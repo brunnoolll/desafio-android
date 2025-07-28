@@ -7,7 +7,9 @@ import com.picpay.desafio.android.data.local.dao.UserDao
 import com.picpay.desafio.android.data.local.model.UserEntity
 import com.picpay.desafio.android.data.remote.ApiService
 import com.picpay.desafio.android.data.remote.dto.UserDto
+import com.picpay.desafio.android.domain.common.Logger
 import com.picpay.desafio.android.domain.common.Resource
+import com.picpay.desafio.android.presentation.userlist.TestLogger
 import com.picpay.desafio.android.util.MainCoroutineRule
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -31,10 +33,11 @@ class UserRepositoryImplTest {
     private lateinit var repository: UserRepositoryImpl
     private val apiService: ApiService = mockk()
     private val userDao: UserDao = mockk()
+    private val fakeLogger: Logger = TestLogger()
 
     @Before
     fun setUp() {
-        repository = UserRepositoryImpl(apiService, userDao)
+        repository = UserRepositoryImpl(apiService, userDao, fakeLogger)
     }
 
     @Test
