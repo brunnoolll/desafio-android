@@ -1,7 +1,6 @@
 package com.picpay.desafio.android.data.remote.dto
 
 import com.picpay.desafio.android.data.local.model.UserEntity
-import com.picpay.desafio.android.domain.model.User
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
